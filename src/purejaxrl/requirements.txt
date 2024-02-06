@@ -1,0 +1,11 @@
+brax
+chex==0.1.8
+distrax
+envpool==0.8.4
+evosax
+flax>=0.7.4
+gymnax
+jax>=0.2.26
+jaxlib>=0.1.74
+numpy==1.23.5
+optax
