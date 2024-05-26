@@ -7,6 +7,7 @@ import jax
 from src.utils import log_save_experiment, evaluate
 from src.utils.config import generate_config_list
 
+jax.config.update("jax_enable_x64", True)
 
 def import_ppo(forward_fill: bool, generated_masking: bool, envpool: bool):
     if not forward_fill and not generated_masking:

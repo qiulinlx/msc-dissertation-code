@@ -7,21 +7,27 @@ from jax import random, vmap
 from flax import linen as nn
 
 
-def make_random_binary_mask_1D(key, shape, percent_zeros):
+def make_random_binary_mask_1D(key, shape, mask_probability):
     B, N = shape
-    num_zeros = np.rint(N * percent_zeros).astype(np.int32)
+    num_zeros= jax.random.bernoulli(key, p=mask_probability, shape=(B,N)) #Check shape
+    binary_mask=num_zeros.astype('uint8')
 
-    # Generate random indices for placing the 1s
-    indices = jnp.broadcast_to(jnp.arange(N), shape)
-    random_indices = jax.random.permutation(key, indices, axis=-1, independent=True)[:, :num_zeros]
-    random_indices = (random_indices + (jnp.arange(B) * N)[:, None]).flatten()
+    if jnp.all(binary_mask == 0):
+        binary_mask = jnp.ones(shape)
 
-    # Create the binary mask with 1s at the selected indices
-    binary_mask = jnp.ones(B * N, dtype=np.int8)
-    binary_mask = binary_mask.at[random_indices].set(0)
+    #num_zeros = np.rint(N * percent_zeros).astype(np.int32)
 
-    # Reshape to the desired shape
-    binary_mask = binary_mask.reshape(shape)
+    # # Generate random indices for placing the 1s
+    # indices = jnp.broadcast_to(jnp.arange(N), shape)
+    # random_indices = jax.random.permutation(key, indices, axis=-1, independent=True)[:, :num_zeros]
+    # random_indices = (random_indices + (jnp.arange(B) * N)[:, None]).flatten()
+
+    # # Create the binary mask with 1s at the selected indices
+    # binary_mask = jnp.ones(B * N, dtype=np.int8)
+    # binary_mask = binary_mask.at[random_indices].set(0)
+
+    # # Reshape to the desired shape
+    # binary_mask = binary_mask.reshape(shape)
 
     return binary_mask
 
