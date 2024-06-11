@@ -276,6 +276,9 @@ class ScannedRNN(nn.Module):
             carry,
         )
         carry, y = nn.GRUCell(E)(carry, x_t)  # y == x_{t+1}
+
+        carry = jnp.asarray(carry, dtype=jnp.float32)
+        y = jnp.asarray(y, dtype=jnp.float32)
         return carry, y
 
     @staticmethod
