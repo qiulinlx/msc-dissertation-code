@@ -9,11 +9,8 @@ from flax import linen as nn
 
 def make_random_binary_mask_1D(key, shape, mask_probability):
     B, N = shape
-    num_zeros= jax.random.bernoulli(key, p=mask_probability, shape=(B,N)) #Check shape
+    num_zeros= jax.random.bernoulli(key, p=(1-mask_probability), shape=(B,N)) #Check shape
     binary_mask=num_zeros.astype('uint8')
-
-    if jnp.all(binary_mask == 0):
-        binary_mask = jnp.ones(shape)
 
     #num_zeros = np.rint(N * percent_zeros).astype(np.int32)
 

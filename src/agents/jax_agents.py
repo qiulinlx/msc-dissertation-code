@@ -111,16 +111,17 @@ class RegularAgentCNN(nn.Module):
         self.conv = ConvNet(self.kernel_dims, self.strides, self.embed_dim)
         self.rnn = ScannedRNN()
         self.actor_head = ActorHead(head_hidden_dim, self.activation, self.action_dim)
+        self.cls_token = nn.Dense(features=self.obs_shape)
         self.critic_head = CriticHead(head_hidden_dim, self.activation)
 
     @staticmethod
-    def generate_mask(rng, obs_shape, mask_ratio, patch_size, add_noise=False):
+    def generate_mask(rng, obs_shape, mask_probability, patch_size, add_noise=False):
         B, H, W, C = obs_shape
         assert H == W, "Only square observations allowed"
         assert H % patch_size == 0, "Patch size must divide observation size"
         grid_size = math.ceil(H / patch_size)
         rng_mask, rng_noise = jax.random.split(rng, 2)
-        mask_1D = make_random_binary_mask_1D(rng_mask, shape=(B, int(grid_size ** 2)), percent_zeros=mask_ratio)
+        mask_1D = make_random_binary_mask_1D(rng_mask, shape=(B, int(grid_size ** 2)), mask_probability= mask_probability)
         mask_2D = broadcast_to_2D_mask(mask_1D, obs_shape, patch_size)
         if add_noise:
             noise = jax.random.uniform(rng_noise, shape=mask_2D.shape)
