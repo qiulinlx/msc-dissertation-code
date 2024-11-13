@@ -54,6 +54,7 @@ def record_episode_stats(episode_stats, transition):
 def carracing_step(step_fn, env_state, action, episode_stats):
     # step in environment
     action = discretise_actions(action)
+    action = jnp.asarray(action, dtype=jnp.float32)
     env_state, (obs, reward, done, truncated, info) = step_fn(env_state, action)
     obs = grayscale_obs(obs)
     episode_stats, done_any, info = record_episode_stats(
