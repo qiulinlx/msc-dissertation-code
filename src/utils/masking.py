@@ -12,8 +12,8 @@ def make_random_binary_mask_1D(key, shape, percent_zeros):
     num_zeros= jax.random.bernoulli(key, p=percent_zeros, shape=(B,N), ) #Check shape
     binary_mask=num_zeros.astype('uint8')
 
-    if jnp.all(binary_mask == 0):
-        binary_mask = jnp.ones(shape)
+    # if jnp.all(binary_mask == 0):
+    #     binary_mask = jnp.ones(shape)
 
     #num_zeros = np.rint(N * percent_zeros).astype(np.int32)
 

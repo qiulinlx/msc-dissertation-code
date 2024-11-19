@@ -9,7 +9,7 @@ from src.utils.config import generate_config_list
 
 jax.config.update("jax_enable_x64", True)
 
-def import_ppo(forward_fill: bool, generated_masking: bool, envpool: bool):
+def import_ppo(forward_fill: bool, generated_masking: bool, envpool: bool, xminigrid: bool ):
     if not forward_fill and not generated_masking:
         if not envpool:
             from src.ppo.ppo_jax import (
@@ -20,6 +20,12 @@ def import_ppo(forward_fill: bool, generated_masking: bool, envpool: bool):
             from src.ppo.ppo_jax_envpool import (
                 make_ppo_train,
                 make_agent_evaluation
+            )
+
+        if xminigrid:
+            from src.ppo.ppo_jax_xminigrid import (
+            make_ppo_train,
+            make_agent_evaluation
             )
 
     elif generated_masking and not forward_fill:
@@ -60,6 +66,7 @@ def main(
         generated_masking:bool,
         resize_method: str,
         envpool: bool,
+        xminigrid: bool,
         seed: int
 ):
     config_list = generate_config_list(
@@ -77,7 +84,7 @@ def main(
         experiment = "fixed_capacity_random_masking"
 
     # import training and eval functions
-    make_ppo_train, make_agent_evaluation = import_ppo(forward_fill, generated_masking, envpool)
+    make_ppo_train, make_agent_evaluation = import_ppo(forward_fill, generated_masking, envpool, xminigrid)
 
     for config in config_list:
         if seed is not None:
@@ -143,6 +150,7 @@ if __name__ == '__main__':
         "bicubic"
     ])
     parser.add_argument('--envpool', action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument('--xminigrid', action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
     main(**vars(args))
