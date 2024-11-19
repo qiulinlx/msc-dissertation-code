@@ -1,20 +1,28 @@
+import xminigrid
+import jax.numpy as jnp
 import jax
-import src.gymnax.gymnax as gymnax
+import jax.tree_util as jtu
 
-rng = jax.random.PRNGKey(0)
-rng, key_reset, key_act, key_step = jax.random.split(rng, 4)
+import matplotlib.pyplot as plt
+from tqdm.auto import trange, tqdm
 
-# Instantiate the environment & its settings.
-env, env_params = gymnax.make("SpaceInvaders-MinAtar")
+def show_img(img, dpi=32):
+    plt.figure(dpi=dpi)
+    plt.axis('off')
+    plt.imshow(img)
 
-# Reset the environment.
-obs, state = env.reset(key_reset, env_params)
+key = jax.random.key(0)
+key, reset_key = jax.random.split(key)
 
-# Sample a random action.
-action = env.action_space(env_params).sample(key_act)
+# to list available environments: xminigrid.registered_environments()
+env, env_params = xminigrid.make("MiniGrid-Empty-8x8")
+print("Observation shape:", env.observation_shape(env_params))
+print("Num actions:", env.num_actions(env_params))
 
-# Perform the step transition.
-n_obs, n_state, reward, done, _ = env.step(key_step, state, action, env_params)
+# fully jit-compatible step and reset methods
+timestep = jax.jit(env.reset)(env_params, reset_key)
+timestep = jax.jit(env.step)(env_params, timestep, action=0)
 
-print(n_state)
+print("TimeStep shapes:", jtu.tree_map(jnp.shape, timestep))
 
+show_img(env.render(env_params, timestep), dpi=64)
